@@ -47,24 +47,6 @@ int main(int argc, _TCHAR* argv[])
 	int htToDt = 0;
 	int nomodToHt = 0;
 
-	//these may vary by pc =/
-	int startOffset = 26;
-	if (nomodToDt)
-	{
-		startOffset = 229;
-	}
-	else if (htToDt)
-	{
-		//work out
-	}
-	else if (htToNomod)
-	{
-		//work out
-	}
-	else if (nomodToHt)
-	{
-		startOffset = -250;
-	}
 	//sampling rate of 100 ms is too slow, may need to use bass position, as lag can fuck up entire replay
 
 	//shit, using .osu file would have exact timings, need relative to replay, so have to scan for bools i guess
@@ -91,24 +73,31 @@ start:
 		Sleep(1);
 	}
 	GetWindowRect(osu,&r);
-	int initialRep = timeGetTime() + startOffset;
+	int go = 0, second = 0, audioOff = 1;
+	DWORD test;
+
+	int initialRep = 0;
 	int initialOsu = timeGetTime();
 	while(!toRead.eof()) {
+		while (!go)
+		{
+			ReadProcessMemory(hProcess, (LPVOID)audioA, &test, sizeof(test), 0);
+			audioOff = test;
+			
+			if (audioOff == 0 && !second)
+			{
+				second = 1;
+				cout << audioOff << endl;
+			}
+			if (second && audioOff > 0)
+			{
+				go = 1;
+				initialRep = timeGetTime() - 5;
+			}
+		}
 		string line; //replay
 		string line2; //osu
 		getline(toRead, line);
-		if (!hit){//bass hasnt gone above 0
-			DWORD audio;			
-			ReadProcessMemory(hProcess,(LPVOID)(audioA), &audio, sizeof(audio),0);
-			if (audio > 0)
-			{
-				hit = 1;
-			}
-		}
-		else
-		{
-
-		}
 		//getline(osuFile, line2);
 		int x,y,offset, press1, press2;
 		sscanf(line.c_str(), "%d,%d,%d,%d,%d", &x, &y, &offset, &press1, &press2);

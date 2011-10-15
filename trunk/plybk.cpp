@@ -50,13 +50,6 @@ int main(int argc, _TCHAR* argv[])
 	//sampling rate of 100 ms is too slow, may need to use bass position, as lag can fuck up entire replay
 
 	//shit, using .osu file would have exact timings, need relative to replay, so have to scan for bools i guess
-	ifstream toRead("test.txt"); //temporary
-	ifstream osuFile("osu.txt"); //also temp
-	//ifstream osuFile("test.osu");
-	if(!toRead.good()) {//|| !osuFile.good()) {
-		cout << "Could not read file" << endl;
-		return -1;
-	}
 	getosu();
 	RECT r;
 
@@ -71,6 +64,13 @@ int main(int argc, _TCHAR* argv[])
 start:
 	while(getTitle() == "osu!") {
 		Sleep(1);
+	}
+	string tempTitle = getTitle();
+	string sub = tempTitle.substr(8);
+	ifstream toRead("replays\\" + sub + ".txt");
+	if(!toRead.good()) {
+		cout << "Could not read file" << endl;
+		goto start;
 	}
 	GetWindowRect(osu,&r);
 	int go = 0, second = 0, audioOff = 1;

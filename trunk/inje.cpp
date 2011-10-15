@@ -153,7 +153,7 @@ start :
 			//cout << filename << "\n";
 			//sprintf(filename, "%s.rep", song); //dunno why this doesnt work, whatever
 			//Note, sprintf is part of c io lib, should use iostream/fstream for c++, more type safe or w/e
-			ofstream replay(song + ".txt");
+			ofstream replay("replays\\" + song + ".txt");
 			if(!replay.good()) {
 			cout << "could not open file for writing" << endl;
 			return -1;

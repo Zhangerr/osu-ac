@@ -104,11 +104,8 @@ int main(int argc, _TCHAR* argv[])
 		}
 		else
 		{
-			//int baseA = 0x02de97fc;
-			int baseA = 0x036039d0;
-			DWORD test;
-			ReadProcessMemory(hProcess, (LPVOID)baseA, &test, sizeof(test), 0);
-			int mouseA = test;
+			int audioA = 0x002954ac;
+			int baseA = 0x02de97fc;	
 			int rmbA = 0x002953f0;
 			int lmbA = 0x00295398;
 			ifstream address("address.txt");
@@ -130,7 +127,11 @@ int main(int argc, _TCHAR* argv[])
 			} else {
 			cout << "could not open address.txt" << endl;
 			}
-			start :
+start :
+			baseA = 0x036039d0;
+			DWORD test;
+			ReadProcessMemory(hProcess, (LPVOID)baseA, &test, sizeof(test), 0);
+			int mouseA = test;
 			bool started = false, offset = 0;
 			string sTitle;
 			char title [128];
@@ -163,9 +164,25 @@ int main(int argc, _TCHAR* argv[])
 	//		f = fopen(title, "wb+");
 			//DWORD test;
 			cout << "starting read" << endl;
-			int initial = timeGetTime();
+			int initial = 0;
 			int diff = 0;
+			int go = 0, second = 0;
+			int audioOff = 0;
 			while(started) {
+				while (!go)
+				{
+					ReadProcessMemory(hProcess, (LPVOID)audioA, &test, sizeof(test), 0);
+					audioOff = test;
+					if (audioOff == 0)
+					{
+						second = 1;
+					}
+					if (second && audioOff > 0)
+					{
+						go = 1;
+						initial = timeGetTime();
+					}
+				}
 				int x,y, rmb, lmb;
 			ReadProcessMemory(hProcess, (LPVOID)rmbA, &test, sizeof(test), 0);
 			rmb = test;

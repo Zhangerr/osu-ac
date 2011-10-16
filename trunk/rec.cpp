@@ -1,5 +1,3 @@
-// inje.cpp : Defines the entry point for the console application.
-//
 #include "stdafx.h"
 #include <stdio.h>
 #include <iostream>
@@ -21,10 +19,9 @@ BOOL CALLBACK enumWindowsProc(HWND hwnd, LPARAM lParam) {
 	DWORD procid;
 	GetWindowThreadProcessId (hwnd, &procid);
 	char buffer[65536];
-
 	int txtlen=GetWindowTextLength(hwnd);
 	GetWindowTextA(hwnd, buffer, txtlen);
-	if(string(buffer).compare("osu!") == 0) { //0 is exact match apparently
+	if(string(buffer).compare("osu!") == 0) {
 		cout << "found osu" << endl;
 		osu = hwnd;
 	}
@@ -67,7 +64,6 @@ int readAddresses(int& audio, int& base, int& rmb, int&lmb) {
 	}
 	return -1;
 }
-//#include <algorithm>   string s("Hejjo Worjd!"); replace(s.begin(), s.end(), 'j', 'l');
 int main(int argc, _TCHAR* argv[])
 {
 	EnumWindows(enumWindowsProc, 0);
@@ -80,10 +76,10 @@ int main(int argc, _TCHAR* argv[])
 
 		if(!hProcess)
 		{ 
-			MessageBox(NULL, L"Cannot open process!", L"Error!", MB_OK + MB_ICONERROR); 
 		}
 		else
 		{
+			//my values incase i forgot to include address.txt, wont work for others
 			int audioA = 0x002954ac;
 			int baseA = 0x02de97fc;	
 			int rmbA = 0x002953f0;
@@ -93,12 +89,11 @@ int main(int argc, _TCHAR* argv[])
 				cout << "failed to open settings, using default" << endl;
 			}
 start :
-			//baseA = 0x036039d0;
 			DWORD test;
 			int mouseA = 0;
 			bool started = false, offset = 0;
 			string sTitle;
-			char title [128]; //note for future may need to increase buffer size? dunno
+			char title [128];
 			while (!started)
 			{
 				title [128];
@@ -161,7 +156,6 @@ start :
 				y = test;
 				diff = timeGetTime() - initial;
 				replay << x << "," << y << "," << diff << "," << rmb << "," << lmb << endl;
-				cout << x << "," << y << "," << diff << "," << rmb << "," << lmb << endl;
 				int txtlen = GetWindowTextLength(osu);
 				GetWindowTextA(osu, title, txtlen);	
 				sTitle = title;

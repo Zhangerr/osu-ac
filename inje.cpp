@@ -10,6 +10,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 using namespace std;
 
 #pragma comment(lib, "Psapi")
@@ -17,58 +18,59 @@ using namespace std;
 HWND osu;
 
 BOOL CALLBACK enumWindowsProc(HWND hwnd, LPARAM lParam) {
-DWORD procid;
-GetWindowThreadProcessId (hwnd, &procid);
- char buffer[65536];
- 
-  int txtlen=GetWindowTextLength(hwnd);
-  GetWindowTextA(hwnd, buffer, txtlen);
-  if(string(buffer).compare("osu!") == 0) { //0 is exact match apparently
-	cout << "found osu" << endl;
-	osu = hwnd;
-  }
-return true;
+	DWORD procid;
+	GetWindowThreadProcessId (hwnd, &procid);
+	char buffer[65536];
+
+	int txtlen=GetWindowTextLength(hwnd);
+	GetWindowTextA(hwnd, buffer, txtlen);
+	if(string(buffer).compare("osu!") == 0) { //0 is exact match apparently
+		cout << "found osu" << endl;
+		osu = hwnd;
+	}
+	return true;
 }
 int readAddresses(int& audio, int& base, int& rmb, int&lmb) {
 	ifstream address("address.txt");
-			if(address.good()) {
-				for(int j = 0; j < 4; j++) {
-				string toGet;
-				getline(address,toGet);				
-				stringstream ss;
-				ss << toGet;
-				int i;
-				ss >> hex >> i;
-				if(ss.fail()) {
-					cout << "Error parsing address" << endl;
-					return -1;
-				}
-				cout << "using address " << i << endl;
-				switch(j) {
-				case 0:
-					audio = i;
-					break;
-				case 1: 
-					base = i;
-					break;
-				case 2:
-					rmb = i;
-					break;
-				case 3:
-					lmb = i;
-					break;
-				}
-				}
-				address.close();
-				return 0;
-			} else {
-			cout << "could not open address.txt" << endl;
+	if(address.good()) {
+		for(int j = 0; j < 4; j++) {
+			string toGet;
+			getline(address,toGet);				
+			stringstream ss;
+			ss << toGet;
+			int i;
+			ss >> hex >> i;
+			if(ss.fail()) {
+				cout << "Error parsing address" << endl;
+				return -1;
 			}
-			return -1;
+			cout << "using address " << i << endl;
+			switch(j) {
+			case 0:
+				audio = i;
+				break;
+			case 1: 
+				base = i;
+				break;
+			case 2:
+				rmb = i;
+				break;
+			case 3:
+				lmb = i;
+				break;
+			}
+		}
+		address.close();
+		return 0;
+	} else {
+		cout << "could not open address.txt" << endl;
+	}
+	return -1;
 }
+//#include <algorithm>   string s("Hejjo Worjd!"); replace(s.begin(), s.end(), 'j', 'l');
 int main(int argc, _TCHAR* argv[])
 {
-	 EnumWindows(enumWindowsProc, 0);
+	EnumWindows(enumWindowsProc, 0);
 	if(osu == NULL) {
 		cout <<"no hwnd " << GetLastError() << endl;
 	} else {
@@ -88,13 +90,12 @@ int main(int argc, _TCHAR* argv[])
 			int lmbA = 0x00295398;
 			int result = readAddresses(audioA,baseA,rmbA,lmbA);
 			if(result != 0) {
-			cout << "failed to open settings, using default" << endl;
+				cout << "failed to open settings, using default" << endl;
 			}
 start :
 			//baseA = 0x036039d0;
 			DWORD test;
-			ReadProcessMemory(hProcess, (LPVOID)baseA, &test, sizeof(test), 0);
-			int mouseA = test;
+			int mouseA = 0;
 			bool started = false, offset = 0;
 			string sTitle;
 			char title [128]; //note for future may need to increase buffer size? dunno
@@ -111,10 +112,19 @@ start :
 				Sleep(1);				
 			}
 			string song = sTitle.substr(8);
+			string sub2 = song.substr(song.length() - 5);
+			if (sub2 == "-----")
+			{
+				song = song.substr(0, song.length() - 24);
+			}
+			char illegal [] = {'*', '\\', '/', '|', '?', '<', '>', '?', '\"', ':'};
+			for(int t = 0; t < (sizeof(illegal) / sizeof(char)); t++) {
+				replace(song.begin(), song.end(), illegal[t], ' ');
+			}
 			ofstream replay("replays\\" + song + ".txt");
 			if(!replay.good()) {
-			cout << "could not open file for writing" << endl;
-			return -1;
+				cout << "could not open file for writing" << endl;
+				return -1;
 			} else {
 				cout << "writing " << song << ".txt" << endl;
 			}
@@ -131,6 +141,8 @@ start :
 					if (audioOff == 0)
 					{
 						second = 1;
+						ReadProcessMemory(hProcess, (LPVOID)baseA, &test, sizeof(test), 0);
+						mouseA = test;
 					}
 					if (second && audioOff > 0)
 					{
@@ -139,25 +151,25 @@ start :
 					}
 				}
 				int x,y, rmb, lmb;
-			ReadProcessMemory(hProcess, (LPVOID)rmbA, &test, sizeof(test), 0);
-			rmb = test;
-			ReadProcessMemory(hProcess, (LPVOID)lmbA, &test, sizeof(test), 0);
-			lmb = test;
-			ReadProcessMemory(hProcess,(LPVOID)(mouseA+4), &test, sizeof(test),0);
-			x = test;
-			ReadProcessMemory(hProcess,(LPVOID)(mouseA+8), &test, sizeof(test),0);
-			y = test;
-			diff = timeGetTime() - initial;
-			replay << x << "," << y << "," << diff << "," << rmb << "," << lmb << endl;
-			cout << x << "," << y << "," << diff << "," << rmb << "," << lmb << endl;
-			int txtlen = GetWindowTextLength(osu);
-			GetWindowTextA(osu, title, txtlen);	
-			sTitle = title;
-			if (sTitle == "osu!")
-			{		
-				started = false;
-			}
-			Sleep(2);
+				ReadProcessMemory(hProcess, (LPVOID)rmbA, &test, sizeof(test), 0);
+				rmb = test;
+				ReadProcessMemory(hProcess, (LPVOID)lmbA, &test, sizeof(test), 0);
+				lmb = test;
+				ReadProcessMemory(hProcess,(LPVOID)(mouseA+4), &test, sizeof(test),0);
+				x = test;
+				ReadProcessMemory(hProcess,(LPVOID)(mouseA+8), &test, sizeof(test),0);
+				y = test;
+				diff = timeGetTime() - initial;
+				replay << x << "," << y << "," << diff << "," << rmb << "," << lmb << endl;
+				cout << x << "," << y << "," << diff << "," << rmb << "," << lmb << endl;
+				int txtlen = GetWindowTextLength(osu);
+				GetWindowTextA(osu, title, txtlen);	
+				sTitle = title;
+				if (sTitle == "osu!")
+				{		
+					started = false;
+				}
+				Sleep(2);
 			}
 			replay.close();
 			cout << "replay record finished, listening again" << endl;

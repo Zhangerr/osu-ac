@@ -8,3 +8,5 @@ the last thing to find changes every run (there is a static version of it but la
 this value resets each time you run the game, but only takes 20sec to find so didnt bother finding a constant pointer to it.
 
 with all these values in place, you need a folder "replays" inside the sam dir as the exes, and then it is almost all automated. keys Q W E and R change the playback speed, but display the change in console so you can figure it out. with recorder open, any time you enter a song it will automatically record the replay to replays folder. with playback open, it will automatically find a matching replay to use (if it doesnt exist it just does nothing). press P to stop the current playback
+
+http://www.mediafire.com/?j7aoldcdhl53kqh link to a shitload of 1024x768 replays

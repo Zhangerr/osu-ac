@@ -10,8 +10,8 @@
 #pragma comment(lib,"Winmm.lib")
 using namespace std;
 
-#define KEY1 'w'
-#define KEY2 'e'
+#define KEY1 'z'
+#define KEY2 'x'
 HWND osu;
 BOOL CALLBACK enumWindowsProc (HWND hwnd, LPARAM lParam) {
 
@@ -59,7 +59,7 @@ int main(int argc, _TCHAR* argv[])
 	DWORD proc_id;
 	GetWindowThreadProcessId(osu,&proc_id);		
 	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, proc_id);
-	int audioA = 0x002954ac;
+	int audioA = 0x0031555C;
 	int hit = 0;
 start:
 	while(getTitle() == "osu!") {

@@ -15,82 +15,60 @@ using namespace std;
 #pragma comment(lib, "Psapi")
 #pragma comment(lib,"Winmm.lib")
 HWND osu;
-FILE* f;
 
-void DisplayProcessNameAndID( DWORD processID )
-{
-   TCHAR szProcessName[MAX_PATH] = TEXT("");
-  
-   // Get a handle to the process.  
-   HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION |
-	  PROCESS_VM_READ,
-	  FALSE, processID );
-  
-   // Get the process name.  
-   if (NULL != hProcess )
-   {
-	  HMODULE hMod;
-	  DWORD cbNeeded;
-	 
-	  //Given a handle to a process, this returns all the modules running within the process.
-	  //The first module is the executable running the process,
-	  //and subsequent handles describe DLLs loaded into the process.
-	  if ( EnumProcessModules( hProcess, &hMod, sizeof(hMod), &cbNeeded) )
-	  {
-		 //This function returns the short name for a module,
-		 //typically the file name portion of the EXE or DLL
-		 GetModuleBaseName( hProcess, hMod, szProcessName,
-			sizeof(szProcessName)/sizeof(TCHAR) );
-	  }
-   }
-  
-   // Display the process name and identifier.
-  // CString str;
-   printf("Text:%s, PID : %u\n", szProcessName, processID );
-  // AfxMessageBox(str);
-  
-   //close the process handle
-   CloseHandle( hProcess );
-}
-BOOL CALLBACK enumWindowsProc (HWND hwnd, LPARAM lParam) {
-
+BOOL CALLBACK enumWindowsProc(HWND hwnd, LPARAM lParam) {
 DWORD procid;
-
 GetWindowThreadProcessId (hwnd, &procid);
-//if ((HANDLE)procid == g_hProc) {
-//LPWSTR tses;
  char buffer[65536];
  
   int txtlen=GetWindowTextLength(hwnd);
   GetWindowTextA(hwnd, buffer, txtlen);
-//GetWindowText(hwnd, tses, sizeof(tses));
   if(string(buffer).compare("osu!") == 0) { //0 is exact match apparently
-	cout << buffer << endl;
+	cout << "found osu" << endl;
 	osu = hwnd;
   }
 return true;
 }
-
+int readAddresses(int& audio, int& base, int& rmb, int&lmb) {
+	ifstream address("address.txt");
+			if(address.good()) {
+				for(int j = 0; j < 4; j++) {
+				string toGet;
+				getline(address,toGet);				
+				stringstream ss;
+				ss << toGet;
+				int i;
+				ss >> hex >> i;
+				if(ss.fail()) {
+					cout << "Error parsing address" << endl;
+					return -1;
+				}
+				cout << "using address " << i << endl;
+				switch(j) {
+				case 0:
+					audio = i;
+					break;
+				case 1: 
+					base = i;
+					break;
+				case 2:
+					rmb = i;
+					break;
+				case 3:
+					lmb = i;
+					break;
+				}
+				}
+				address.close();
+				return 0;
+			} else {
+			cout << "could not open address.txt" << endl;
+			}
+			return -1;
+}
 int main(int argc, _TCHAR* argv[])
 {
 	 EnumWindows(enumWindowsProc, 0);
-	// system("pause");
-	//HWND  hWnd = FindWindow(0,L"osu!");
-	   // Get the list of process identifiers.  
-  // DWORD aProcesses[1024], cbNeeded, cProcesses;
-//   unsigned int i;
-
-   //This returns a list of handles to processes running on the system as an array.
-/*   if ( !EnumProcesses( aProcesses, sizeof(aProcesses), &cbNeeded ) )
-	  return 0 ;
-   
-   // Calculate how many process identifiers were returned.  
-   cProcesses = cbNeeded / sizeof(DWORD);
-  
-   // Display the name and process identifier for each process.  
-   for ( i = 0; i < cProcesses; i++ )
-	  if( aProcesses[i] != 0 )
-		 DisplayProcessNameAndID( aProcesses[i] );  */
 	if(osu == NULL) {
 		cout <<"no hwnd " << GetLastError() << endl;
 	} else {
@@ -98,7 +76,7 @@ int main(int argc, _TCHAR* argv[])
 		GetWindowThreadProcessId(osu,&proc_id);		
 		HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, proc_id);
 
-		if(!hProcess) //** If cannot 'OpenProcess', then it displays the error message 
+		if(!hProcess)
 		{ 
 			MessageBox(NULL, L"Cannot open process!", L"Error!", MB_OK + MB_ICONERROR); 
 		}
@@ -108,34 +86,18 @@ int main(int argc, _TCHAR* argv[])
 			int baseA = 0x02de97fc;	
 			int rmbA = 0x002953f0;
 			int lmbA = 0x00295398;
-			ifstream address("address.txt");
-			if(address.good()) {
-				string toGet;
-				getline(address,toGet);
-				stringstream ss;
-				ss << toGet;
-				int i;
-				
-				ss >> hex >> i;
-				if(ss.fail()) {
-					cout << "Error parsing address" << endl;
-					return -1;
-				}
-				cout << "using address " << i << endl;
-				baseA = i;
-				address.close();
-			} else {
-			cout << "could not open address.txt" << endl;
+			int result = readAddresses(audioA,baseA,rmbA,lmbA);
+			if(result != 0) {
+			cout << "failed to open settings, using default" << endl;
 			}
 start :
-			baseA = 0x036039d0;
+			//baseA = 0x036039d0;
 			DWORD test;
 			ReadProcessMemory(hProcess, (LPVOID)baseA, &test, sizeof(test), 0);
 			int mouseA = test;
 			bool started = false, offset = 0;
 			string sTitle;
-			char title [128];
-			
+			char title [128]; //note for future may need to increase buffer size? dunno
 			while (!started)
 			{
 				title [128];
@@ -144,15 +106,11 @@ start :
 				sTitle = title;
 				if (sTitle != "osu!")
 				{		
-					started = true;//1; 1 or 0 is for backwards c compatibility, true/false is prob better in c++
+					started = true;
 				}
 				Sleep(1);				
 			}
 			string song = sTitle.substr(8);
-			//char filename [256];
-			//cout << filename << "\n";
-			//sprintf(filename, "%s.rep", song); //dunno why this doesnt work, whatever
-			//Note, sprintf is part of c io lib, should use iostream/fstream for c++, more type safe or w/e
 			ofstream replay("replays\\" + song + ".txt");
 			if(!replay.good()) {
 			cout << "could not open file for writing" << endl;
@@ -160,9 +118,6 @@ start :
 			} else {
 				cout << "writing " << song << ".txt" << endl;
 			}
-		    
-	//		f = fopen(title, "wb+");
-			//DWORD test;
 			cout << "starting read" << endl;
 			int initial = 0;
 			int diff = 0;
@@ -189,10 +144,8 @@ start :
 			ReadProcessMemory(hProcess, (LPVOID)lmbA, &test, sizeof(test), 0);
 			lmb = test;
 			ReadProcessMemory(hProcess,(LPVOID)(mouseA+4), &test, sizeof(test),0);
-			//cout << test << endl;
 			x = test;
 			ReadProcessMemory(hProcess,(LPVOID)(mouseA+8), &test, sizeof(test),0);
-			//cout << test << endl;
 			y = test;
 			diff = timeGetTime() - initial;
 			replay << x << "," << y << "," << diff << "," << rmb << "," << lmb << endl;
@@ -208,16 +161,9 @@ start :
 			}
 			replay.close();
 			cout << "replay record finished, listening again" << endl;
-			goto start; //oh well ;_;
-		//	cout << &hProcess << endl;
-		//	cout << GetModuleBase(hProcess, string("C:\\Users\\Alex\\Documents\\visual studio 2010\\Projects\\CEMe\\Debug\\CEMe.exe"))  + 0x0B8000 << endl;
-
-		//	cout << test << endl;
-			////DWORD test2 = 31337;
-		//	WriteProcessMemory(hProcess,(LPVOID)(0x003D8000), &test2,sizeof(test2),0);
+			goto start;
 		}
 	}
-	//CloseHandle(hProcess);
 	system("pause");
 	return 0; 
 }

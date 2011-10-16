@@ -1,6 +1,3 @@
-// plybk.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
@@ -11,12 +8,10 @@
 #pragma comment(lib,"Winmm.lib")
 using namespace std;
 
-//#define KEY1 'z'
-//#define KEY2 'x'
 HWND osu;
 
 int readAddresses(int& audio, char& key1, char& key2) {
-	ifstream address("address.txt");
+	ifstream address("address2.txt");
 	if(address.good()) {
 		string toGet;
 		getline(address,toGet);	
@@ -53,14 +48,11 @@ BOOL CALLBACK enumWindowsProc (HWND hwnd, LPARAM lParam) {
 	DWORD procid;
 
 	GetWindowThreadProcessId (hwnd, &procid);
-	//if ((HANDLE)procid == g_hProc) {
-	//LPWSTR tses;
 	char buffer[65536];
 
 	int txtlen=GetWindowTextLength(hwnd);
 	GetWindowTextA(hwnd, buffer, txtlen);
-	//GetWindowText(hwnd, tses, sizeof(tses));
-	if(string(buffer).compare("osu!") == 0) { //0 is exact match apparently
+	if(string(buffer).compare("osu!") == 0) {
 		cout << "Found " <<  buffer << endl;
 		osu = hwnd;
 	}
@@ -81,13 +73,8 @@ int main(int argc, _TCHAR* argv[])
 	int htToNomod = 0;
 	int htToDt = 0;
 	int nomodToHt = 0;
-
-	//sampling rate of 100 ms is too slow, may need to use bass position, as lag can fuck up entire replay
-
-	//shit, using .osu file would have exact timings, need relative to replay, so have to scan for bools i guess
 	getosu();
 	RECT r;
-
 	if(osu == NULL) {
 		cout << "couldn't find osu" << endl;
 		system("pause");
@@ -103,7 +90,6 @@ int main(int argc, _TCHAR* argv[])
 		cout << "reading addresses failed" << endl;
 	}
 	cout << key1 << "," << key2 << "," << audioA << endl;
-
 	int hit = 0;
 start:
 	while(getTitle() == "osu!") {
@@ -150,7 +136,6 @@ start:
 	GetWindowRect(osu,&r);
 	int go = 0, second = 0, audioOff = 1;
 	DWORD test;
-
 	int initialRep = 0;
 	int initialOsu = timeGetTime();
 	while(!toRead.eof()) {
@@ -170,12 +155,10 @@ start:
 				initialRep = timeGetTime() - 5;
 			}
 		}
-		string line; //replay
+		string line;
 		getline(toRead, line);
-		//getline(osuFile, line2);
 		int x,y,offset, press1, press2;
 		sscanf(line.c_str(), "%d,%d,%d,%d,%d", &x, &y, &offset, &press1, &press2);
-		cout << x << "," << y << "," << offset << endl;
 		if (nomodToDt)
 		{
 			offset = offset *(2.0/3.0);
@@ -195,7 +178,6 @@ start:
 		}
 		int now = timeGetTime() -  initialRep;
 		while((offset - now) > 1) {
-			//Sleep(1);	
 			now = timeGetTime() -  initialRep;
 			if(getTitle() == "osu!") {
 				toRead.close();

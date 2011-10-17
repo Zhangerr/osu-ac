@@ -39,7 +39,7 @@ int readAddresses(int& audio, char& key1, char& key2) {
 		address.close();
 		return 0;
 	} else {
-		cout << "could not open address.txt" << endl;
+		cout << "could not open address2.txt" << endl;
 	}
 	return -1;
 }

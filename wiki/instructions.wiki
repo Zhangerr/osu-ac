@@ -1,5 +1,5 @@
 #summary Instructions for use osu-ac.
-
+<wiki:toc max_depth="1" />
 = Introduction =
 
 osu-ac was written by Matt (aevv) and me (Alex).
@@ -77,7 +77,7 @@ Do the same thing as above, except do it while playing the map yourself. Pause t
 == Mouse Position Address ==
 The last thing to find changes every run (there is a static version of it, if anyone could tell us how to find it, would be greatly appreciated). Make a replay where you begin with your cursor at the top of the screen, then drag it slowly down to the bottom, and slowly back up to the top. Watch the replay. Scan for unknown at the beginning, and then when the cursor is moving down means your cursor's y value increased, so scan for increased value when it is, and when it's moving up it means the y value decreased, so scan for decreased value. Look for a value that corresponds to the Y (vertical) position of the mouse, as there will be many (note that when your cursor is at about the top it should be close to zero, and when the cursor is near the bottom, it should be close to the height of the window). Once you see this, don't change song or the address will change. Click the value and move it to the bottom with the red arrow, then right click and "find what writes to this address". Agree to attach debugger. You should then see a command being executed "movsd", right click and show in disassembler. a few lines above, there will be a line such as mov edi,[03xxxxD0] - the value inside the square brackets is your pointer, should start with 03 and end with D0 (Does not _have_ to). This goes as the 2nd address in address.txt. This value resets each time you run the game, but only takes 20 seconds to find so we didn't bother finding a constant pointer to it.
 
-== Using the actual programs ==
+= Using the actual programs =
 With all these values in place, you need a folder *"replays"* inside the same directory as the exes, and then it is almost all automated. Keys Q W E and R change the playback speed, but display the change in console so you can figure it out. With recorder open, any time you enter a song it will automatically record the replay to replays folder. with playback open, it will automatically find a matching replay to use (if it doesn't exist it just does nothing). Press P to stop the current playback (it will also stop if the title changes to osu!).
 
 == Additional Notes ==

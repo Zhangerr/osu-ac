@@ -14,7 +14,7 @@ We do not provide binaries, as this was by choice. Rather, we provide the necess
 = How to use osu-ac =
 
 == Getting started ==
-The first part of using osu-ac involves configuring it to use the correct memory addresses. This is done primarily with Cheat Engine (link [http://cheatengine.org here]). Download that, and install it. For the rest of the tutorial, just leave osu! open and attach Cheat Engine to osu!.exe. Note that everytime you restart osu!, you may have to rescan these values (more than likely).
+The first part of using osu-ac involves configuring it to use the correct memory addresses. This is done primarily with Cheat Engine (link [http://cheatengine.org here]). Download that, and install it. For the rest of the tutorial, just leave osu! open and attach Cheat Engine to osu!.exe. Note that everytime you restart osu!, you may have to rescan these values (the audio offset and mouse buttons are static, but the mouse pointer can change).
 
 = Required memory addresses =
 

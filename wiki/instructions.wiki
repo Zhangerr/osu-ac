@@ -2,7 +2,7 @@
 <wiki:toc max_depth="1" />
 = Introduction =
 
-osu-ac was written by Matt (aevv) and me (Alex).
+osu-ac was written by matt (aevv) and me (Alex).
 
 *Note that this is a WIP!*
 

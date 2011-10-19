@@ -83,6 +83,9 @@ Press F6 in both projects to build them, and put both exes in the same directory
 == Additional Notes ==
 Note that the sampling rate during recording is about every 2 ms, so you probably need a decent PC for this to work, otherwise recording/playback will *NOT* work very well. Note also that not a perfect reproduction of the replay is made, as there can be offsets due to the audio pointer not updating quickly enough. Saved replays should be compatible across machines that use the same osu! resolution.
 
+All in all, do not expect this to be a foolproof method to copy replays - there will be instances where it will fail due to lag during recording or during playback, or a slow updating audio pointer. Secondly, the cursor offset (actual coordinates added in playback) are slightly off, in the future this may need to be fine tuned.
+
+
 == Existing replays ==
 These are pre-recorded replays, make sure you have the matching resolution. Feel free to link us to your own replays!
 

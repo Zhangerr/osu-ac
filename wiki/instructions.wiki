@@ -6,7 +6,7 @@ osu-ac was written by matt (aevv) and me (Alex).
 
 *Note that this is a WIP!*
 
-Feel free to ask questions.
+Feel free to ask questions. (email or questions, you can find us on irc as well [irc://exp.ulse.net:6667]).
 
 = How to build osu-ac =
 We do not provide binaries, as this was by choice. Rather, we provide the necessary source files to compile it yourself. You will need [http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express this] probably to build it. Note that you only need C++; during the installation, it may have an option for SQL Server or something, those are *NOT* required. Make two separate Win32 Console Applications (Visual C++ >>  Win32 >> Win32 Console Application. Make sure you pick console application, not windows application), one for recording and another for playback. Check empty project at the wizard. Now, you'll need to download the actual source of osu-ac. Download a subversion client, the most popular being something like [http://tortoisesvn.tigris.org tortoise svn]. Create a new folder, in which you will download the project files. If you have install tortoise correctly, you should right click and see the option svn checkout. In there, paste the line http://osu-ac.googlecode.com/svn/trunk/, and hit ok. All the files should now be downloaded. In C++ Express, hit view and then solution explorer. In the "Source Files" folder, add stdafx.cpp to both of the projects. In the playback project, put pla.cpp in the source files, and the recorder put rec.cpp. In both of them, add to the "Header Files" targetver.h and stdafx.h.
@@ -15,6 +15,8 @@ We do not provide binaries, as this was by choice. Rather, we provide the necess
 
 == Getting started ==
 The first part of using osu-ac involves configuring it to use the correct memory addresses. This is done primarily with Cheat Engine (link [http://cheatengine.org here]). Download that, and install it. For the rest of the tutorial, just leave osu! open and attach Cheat Engine to osu!.exe. Note that everytime you restart osu!, you may have to rescan these values (the audio offset and mouse buttons are static, but the mouse pointer can change).
+
+edit: having to re-find the addresses could be remedied by disabling ASLR (address space layout randomization)
 
 = Required memory addresses =
 
